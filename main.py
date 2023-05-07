@@ -10,6 +10,10 @@ from kivy.uix.widget import Widget
 from kivy.uix.label import Label
 from kivymd.uix.button import MDRoundFlatButton
 from kivymd.uix.label import MDLabel
+from kivymd.uix.button import MDIconButton, MDFlatButton,MDRaisedButton
+from kivy.uix.gridlayout import GridLayout
+from kivymd.uix.toolbar import MDTopAppBar
+
 
 class LoginScreen(Screen):
     def __init__(self, **kwargs):
@@ -73,13 +77,39 @@ class LoginScreen(Screen):
     def go_to_DialerScreen(self, *args):
         self.manager.current = 'DialerScreen'
 
-
-
 class DialerScreen(Screen):
     def __init__(self, **kwargs):
         super(DialerScreen, self).__init__(**kwargs)
 
-        self.add_widget(MDRectangleFlatButton(text='Go to Screen 3', on_release=self.go_to_PrankScreen))
+         # Create the toolbar and set its properties
+        toolbar = MDTopAppBar(title="Random Caller",anchor_title="left",round="40dp")
+        toolbar.pos_hint = {'top': 1}
+        toolbar.size_hint = (1, None)
+        toolbar.height = '48dp'
+
+        # Create the BoxLayout for the text input and add the phone dialer GridLayout to it
+        bottom_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        # Add blank widget
+        bottom_layout.add_widget(toolbar)
+        bottom_layout.add_widget(Widget(size_hint=(1, 0.3)))
+        # Add MDTextField
+        bottom_layout.add_widget(MDTextField(hint_text='Phone number', size_hint=(0.8, None), height=40,pos_hint={'center_x': .5}))
+        # Add MDButtons
+        button_layout = BoxLayout(orientation='horizontal', padding=10, spacing=10)
+        # Add blank widget
+        button_layout.add_widget(Widget(size_hint=(.2, .2)))
+        button_layout.add_widget(MDRaisedButton(text='Generate', on_release=self.generate_button_pressed, pos_hint={'center_y': .95,'center_x': 0},md_bg_color="green",rounded_button="True",elevation=2))
+        button_layout.add_widget(MDRaisedButton(text='Prank', on_release=self.go_to_PrankScreen, pos_hint={'center_y': .95,'center_x': .5},md_bg_color="blue",rounded_button="True",elevation=2))
+        button_layout.add_widget(Widget(size_hint=(.2, .2)))
+        bottom_layout.add_widget(button_layout)
+        # Add blank widget
+        bottom_layout.add_widget(Widget(size_hint=(1, 1)))
+        
+        self.add_widget(bottom_layout)
+
+    def generate_button_pressed(self, *args):
+        # Handle the generate button press
+        print("Generate button pressed")
 
     def go_to_PrankScreen(self, *args):
         self.manager.current = 'PrankScreen'
