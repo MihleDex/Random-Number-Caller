@@ -15,6 +15,10 @@ from kivy.uix.gridlayout import GridLayout
 from kivymd.uix.toolbar import MDTopAppBar
 import random
 from kivy.properties import StringProperty
+from android.permissions import check_permission, request_permissions
+from android.activity import AndroidActivity
+
+
 
 
 class LoginScreen(Screen):
@@ -84,6 +88,8 @@ class DialerScreen(Screen):
     user_area_code = StringProperty()
     def __init__(self, **kwargs):
         super(DialerScreen, self).__init__(**kwargs)
+        phone_number =""
+
         # Create the toolbar and set its properties
         toolbar = MDTopAppBar(title="Random Caller",anchor_title="left")
         toolbar.pos_hint = {'top': 1}
@@ -103,7 +109,7 @@ class DialerScreen(Screen):
         # Add blank widget
         button_layout.add_widget(Widget(size_hint=(.2, .2)))
         button_layout.add_widget(MDRaisedButton(text='Generate', on_release=lambda x: self.generate_button_pressed(self.user_area_code), pos_hint={'center_y': .95,'center_x': 0},md_bg_color="green",rounded_button="True",elevation=2))
-        button_layout.add_widget(MDRaisedButton(text='Call', on_release=self.go_to_PrankScreen, pos_hint={'center_y': .95,'center_x': .5},md_bg_color="blue",rounded_button="True",elevation=2))
+        button_layout.add_widget(MDRaisedButton(text='Call', on_release=lambda x: self.make_call(phone_number), pos_hint={'center_y': .95,'center_x': .5},md_bg_color="blue",rounded_button="True",elevation=2))
         button_layout.add_widget(Widget(size_hint=(.2, .2)))
         bottom_layout.add_widget(button_layout)
         # Add blank widget
@@ -136,20 +142,28 @@ class DialerScreen(Screen):
                 ln_a = str(line_number)[:3]
                 ln_b = str(line_number)[3:7]
                 self.phone_number_input.text = f"+27 {prefix} {int(ln_a)}-{int(ln_b)}"
+                phone_number = self.phone_number_input.text
 
             else:
                 # Add more elif statements for other countries here
                 self.phone_number_input.text = "Invalid country code"
 
 
-    def go_to_PrankScreen(self, *args):
-        self.manager.current = 'PrankScreen'
+    def make_call(self,number):
+        phone_number = number
+        if check_permission('android.permission.CALL_PHONE'):
+            AndroidActivity().send_intent('android.intent.action.CALL', 'tel:'+phone_number)
+        else:
+            request_permissions(['android.permission.CALL_PHONE'])
+
+    def go_to_About_Screen(self, *args):
+        self.manager.current = 'About_Screen'
 
 
 
-class PrankScreen(Screen):
+class About_Screen(Screen):
     def __init__(self, **kwargs):
-        super(PrankScreen, self).__init__(**kwargs)
+        super(About_Screen, self).__init__(**kwargs)
 
         self.add_widget(MDRectangleFlatButton(text='Go to Screen 1', on_release=self.go_to_LoginScreen))
 
@@ -166,7 +180,7 @@ class MyApp(MDApp):
         Window.size = (480, 720)
         sm.add_widget(LoginScreen(name='LoginScreen'))
         sm.add_widget(DialerScreen(name='DialerScreen'))
-        sm.add_widget(PrankScreen(name='PrankScreen'))
+        sm.add_widget(About_Screen(name='About_Screen'))
         self.root = sm
         return sm
     
